@@ -1,17 +1,16 @@
+// Frontend/src/layouts/MainLayout.jsx
+import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-export default function MainLayout({ children }) {
-
+export default function MainLayout() {
   return (
-    <div>
-
+    <>
       <Navbar />
-
-      {children}
-
+      <main className="min-h-screen">
+        <Outlet />  {/* ← C'est ici que le contenu des pages s'affiche */}
+      </main>
       <Footer />
-
-    </div>
+    </>
   );
 }
