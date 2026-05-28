@@ -119,16 +119,7 @@ export default function Navbar() {
             Université
           </Link>
 
-          <Link
-            to="/formations"
-            className="
-            hover:text-yellow-500
-            transition
-            duration-300
-            "
-          >
-            Formations
-          </Link>
+          
 
           <Link
             to="/admission"

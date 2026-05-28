@@ -1,9 +1,14 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import PaymentModal from "../components/PaymentModal";
 
 export default function Admission() {
-  // === ÉTATS PRINCIPAUX ===
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -12,10 +17,13 @@ export default function Admission() {
   const [candidatureStatus, setCandidatureStatus] = useState(null);
   const [candidatureInfo, setCandidatureInfo] = useState(null);
   
-  // === ÉTATS TYPE D'INSCRIPTION ===
+  const [fieldErrors, setFieldErrors] = useState({
+    dateNaissance: "",
+    anneeBac: ""
+  });
+
   const [inscriptionType, setInscriptionType] = useState("nouveau");
   
-  // === ÉTATS FORMULAIRE ===
   const [formData, setFormData] = useState({
     nom: "", prenom: "", email: "", telephone: "", telephoneParent: "",
     sexe: "", dateNaissance: "", lieuNaissance: "", paysOrigine: "",
@@ -25,46 +33,179 @@ export default function Admission() {
     anneeAcademique: "2025-2026"
   });
   
-  // === ÉTATS DOCUMENTS ===
   const [documents, setDocuments] = useState({ diplome: null, certificatBac: null, nationalite: null, naissance: null, photo: null });
   const [fileNames, setFileNames] = useState({ diplome: "", certificatBac: "", nationalite: "", naissance: "", photo: "" });
   
-  // === ÉTATS PAIEMENT ===
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
   
-  // === SUIVI CANDIDATURE ===
   const [searchRef, setSearchRef] = useState("");
   const [showSuivi, setShowSuivi] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
   
-  // === MESSAGES ===
   const [erreur, setErreur] = useState("");
   const [success, setSuccess] = useState("");
-  
-  // === REFS ===
+
   const fileInputs = { diplome: useRef(null), certificatBac: useRef(null), nationalite: useRef(null), naissance: useRef(null), photo: useRef(null) };
 
-  // === CONFIGURATIONS ===
-  const tarifs = { 
-    Licence: 50000, 
-    Master: 75000, 
-    Doctorat: 100000,
-    premiereTranche: 50000,
-    deuxiemeTranche: 50000
-  };
-  
-  const filieres = ["Informatique", "Gestion", "Droit", "Mathématiques", "Biologie", "Physique", "Chimie", "Télécommunication", "Géologie"];
-  
-  const sousNiveauxOptions = {
-    Licence: [{ value: "L1", label: "Licence 1" }, { value: "L2", label: "Licence 2" }, { value: "L3", label: "Licence 3" }],
-    Master: [{ value: "M1", label: "Master 1" }, { value: "M2", label: "Master 2" }],
-    Doctorat: [{ value: "D1", label: "Doctorat 1" }, { value: "D2", label: "Doctorat 2" }, { value: "D3", label: "Doctorat 3" }],
-  };
-  
-  const niveauxReinscription = ["Licence 2", "Licence 3", "Master 1", "Master 2", "Doctorat 1", "Doctorat 2", "Doctorat 3"];
+  // ============ VÉRIFICATION DE L'AUTHENTIFICATION ============
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    
+    if (!token) {
+      // Rediriger vers la page de connexion
+      navigate("/connexion");
+      return;
+    }
+    
+    try {
+      const userInfo = JSON.parse(userData);
+      setUser(userInfo);
+      setIsAuthenticated(true);
+      
+      // Pré-remplir l'email avec celui de l'utilisateur connecté
+      if (userInfo.email) {
+        setFormData(prev => ({ ...prev, email: userInfo.email }));
+        if (userInfo.nom) setFormData(prev => ({ ...prev, nom: userInfo.nom }));
+        if (userInfo.prenom) setFormData(prev => ({ ...prev, prenom: userInfo.prenom }));
+        if (userInfo.telephone) setFormData(prev => ({ ...prev, telephone: userInfo.telephone }));
+      }
+    } catch (error) {
+      console.error("Erreur lecture user:", error);
+      navigate("/connexion");
+    } finally {
+      setCheckingAuth(false);
+    }
+  }, [navigate]);
 
-  // === VÉRIFIER STATUT CANDIDATURE ===
+  // Si authentification en cours, afficher un loader
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-900 to-green-700 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin text-5xl text-white mb-4">⏳</div>
+          <p className="text-white">Vérification de votre session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si non authentifié, ne pas afficher le contenu (redirection déjà faite)
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // ============ FONCTIONS DE VALIDATION (inchangées) ============
+  const validateDateNaissance = (date) => {
+    if (!date) return "La date de naissance est requise";
+    const birthYear = new Date(date).getFullYear();
+    const maxYear = 2008;
+    
+    if (birthYear > maxYear) {
+      return `La date de naissance ne peut pas être supérieure à ${maxYear} (vous devez avoir au moins 17 ans)`;
+    }
+    if (birthYear < 1950) {
+      return "Année de naissance invalide";
+    }
+    return "";
+  };
+
+  const validateAnneeBac = (annee) => {
+    if (!annee) return "L'année du Bac est requise";
+    if (!/^\d{4}$/.test(annee)) {
+      return "L'année du Bac doit contenir exactement 4 chiffres";
+    }
+    const anneeNum = parseInt(annee);
+    const maxYear = 2026;
+    
+    if (anneeNum > maxYear) {
+      return `L'année du Bac ne peut pas être supérieure à ${maxYear}`;
+    }
+    if (anneeNum < 2000) {
+      return "L'année du Bac est invalide";
+    }
+    return "";
+  };
+
+  const validateTelephone = (tel) => {
+    if (!tel) return "Le téléphone est requis";
+    if (!/^\d{8,12}$/.test(tel)) {
+      return "Le téléphone doit contenir entre 8 et 12 chiffres";
+    }
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (!email) return "L'email est requis";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Email invalide (exemple: nom@domaine.com)";
+    }
+    return "";
+  };
+
+  const validateName = (name, fieldName) => {
+    if (!name) return `${fieldName} est requis`;
+    if (!/^[a-zA-ZÀ-ÿ\s-]{2,50}$/.test(name)) {
+      return `${fieldName} doit contenir uniquement des lettres (2-50 caractères)`;
+    }
+    return "";
+  };
+
+  const validateFormComplete = () => {
+    const dateError = validateDateNaissance(formData.dateNaissance);
+    if (dateError) { setErreur(dateError); return false; }
+    
+    const bacError = validateAnneeBac(formData.anneeBac);
+    if (bacError) { setErreur(bacError); return false; }
+    
+    const phoneError = validateTelephone(formData.telephone);
+    if (phoneError) { setErreur(phoneError); return false; }
+    
+    if (formData.telephoneParent) {
+      const parentPhoneError = validateTelephone(formData.telephoneParent);
+      if (parentPhoneError) { setErreur(parentPhoneError); return false; }
+    }
+    
+    const emailError = validateEmail(formData.email);
+    if (emailError) { setErreur(emailError); return false; }
+    
+    const nomError = validateName(formData.nom, "Le nom");
+    if (nomError) { setErreur(nomError); return false; }
+    
+    const prenomError = validateName(formData.prenom, "Le prénom");
+    if (prenomError) { setErreur(prenomError); return false; }
+    
+    return true;
+  };
+
+  const validateFieldOnChange = (name, value) => {
+    if (name === "dateNaissance") {
+      const error = validateDateNaissance(value);
+      setFieldErrors(prev => ({ ...prev, dateNaissance: error }));
+      return error === "";
+    }
+    if (name === "anneeBac") {
+      const error = validateAnneeBac(value);
+      setFieldErrors(prev => ({ ...prev, anneeBac: error }));
+      return error === "";
+    }
+    if (name === "telephone") {
+      const error = validateTelephone(value);
+      setFieldErrors(prev => ({ ...prev, telephone: error }));
+      return error === "";
+    }
+    if (name === "email") {
+      const error = validateEmail(value);
+      setFieldErrors(prev => ({ ...prev, email: error }));
+      return error === "";
+    }
+    return true;
+  };
+
+  // ============ FONCTIONS EXISTANTES ============
+
   const checkCandidatureStatus = async () => {
     if (!searchRef) {
       setErreur("Veuillez entrer une référence");
@@ -95,8 +236,11 @@ export default function Admission() {
     }
   };
 
-  // === SOUMISSION NOUVEL ÉTUDIANT ===
   const soumettreCandidature = async () => {
+    if (!validateFormComplete()) {
+      return;
+    }
+    
     setLoading(true);
     setErreur("");
     
@@ -124,7 +268,6 @@ export default function Admission() {
     }
   };
 
-  // === SOUMISSION RÉINSCRIPTION ===
   const soumettreReinscription = async () => {
     if (!formData.matricule || !formData.nom || !formData.prenom || 
         !formData.niveau || !formData.telephone || !formData.email || !formData.filiere) {
@@ -163,10 +306,10 @@ export default function Admission() {
     }
   };
 
-  // === GESTIONNAIRES ===
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    validateFieldOnChange(name, value);
     if (name === "niveau" && inscriptionType === "nouveau") {
       setFormData(prev => ({ ...prev, niveau: value, sousNiveau: "" }));
     }
@@ -198,11 +341,15 @@ export default function Admission() {
       const required = ["nom", "prenom", "email", "telephone", "telephoneParent", "sexe", "dateNaissance", "lieuNaissance", "paysOrigine"];
       const missing = required.filter(f => !formData[f]);
       if (missing.length) { setErreur("Veuillez remplir tous les champs"); return; }
+      const dateError = validateDateNaissance(formData.dateNaissance);
+      if (dateError) { setErreur(dateError); return; }
     }
     if (currentStep === 2) {
       const required = ["filiere", "niveau", "sousNiveau", "mention", "anneeBac"];
       const missing = required.filter(f => !formData[f]);
       if (missing.length) { setErreur("Veuillez remplir tous les champs académiques"); return; }
+      const bacError = validateAnneeBac(formData.anneeBac);
+      if (bacError) { setErreur(bacError); return; }
     }
     if (currentStep === 3 && inscriptionType === "nouveau") {
       const docsRequired = ["diplome", "certificatBac", "nationalite", "naissance", "photo"];
@@ -215,7 +362,24 @@ export default function Admission() {
 
   const prevStep = () => setCurrentStep(prev => prev - 1);
 
-  // === COMPOSANT CARTE DOCUMENT ===
+  const tarifs = { 
+    Licence: 50000, 
+    Master: 75000, 
+    Doctorat: 100000,
+    premiereTranche: 50000,
+    deuxiemeTranche: 50000
+  };
+  
+  const filieres = ["Informatique", "Gestion", "Droit", "Mathématiques", "Biologie", "Physique", "Chimie", "Télécommunication", "Géologie"];
+  
+  const sousNiveauxOptions = {
+    Licence: [{ value: "L1", label: "Licence 1" }, { value: "L2", label: "Licence 2" }, { value: "L3", label: "Licence 3" }],
+    Master: [{ value: "M1", label: "Master 1" }, { value: "M2", label: "Master 2" }],
+    Doctorat: [{ value: "D1", label: "Doctorat 1" }, { value: "D2", label: "Doctorat 2" }, { value: "D3", label: "Doctorat 3" }],
+  };
+  
+  const niveauxReinscription = ["Licence 2", "Licence 3", "Master 1", "Master 2", "Doctorat 1", "Doctorat 2", "Doctorat 3"];
+
   const FileUploadCard = ({ label, docType, icon }) => (
     <div className={`relative border-2 rounded-2xl p-5 transition-all duration-300 cursor-pointer ${fileNames[docType] ? 'border-green-500 bg-green-50' : 'border-dashed border-gray-300 hover:border-green-400 hover:shadow-lg'}`} onClick={() => openFileDialog(docType)}>
       <div className="text-center">
@@ -233,7 +397,6 @@ export default function Admission() {
     </div>
   );
 
-  // === INDICATEUR D'ÉTAPES ===
   const StepIndicator = () => (
     <div className="flex justify-between mb-10 px-4">
       {[{ num: 1, label: "Identité", icon: "👤" }, { num: 2, label: "Académique", icon: "📚" }, { num: 3, label: "Documents", icon: "📎" }, { num: 4, label: "Soumission", icon: "✅" }].map(step => (
@@ -247,7 +410,7 @@ export default function Admission() {
     </div>
   );
 
-  // === PAGE APRÈS SOUMISSION ===
+  // Page de succès après soumission
   if (submitted && inscriptionType === "nouveau") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center p-6">
@@ -276,10 +439,15 @@ export default function Admission() {
     );
   }
 
-  // === RENDU PRINCIPAL ===
+  // RENDU PRINCIPAL (après authentification)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-950 py-12">
       <div className="max-w-5xl mx-auto px-4">
+        
+        {/* Message de bienvenue */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-6 text-white text-center">
+          <p>👋 Bonjour <strong>{user?.nom || user?.email}</strong>, bienvenue dans votre espace d'inscription</p>
+        </div>
         
         {/* Sélection type d'inscription */}
         <div className="flex justify-center gap-4 mb-8">
@@ -315,7 +483,7 @@ export default function Admission() {
         {/* Indicateur d'étapes */}
         {inscriptionType === "nouveau" && <StepIndicator />}
 
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="bg-gray-500 rounded-3xl shadow-2xl overflow-hidden">
           <div className={`bg-gradient-to-r ${inscriptionType === "reinscription" ? "from-blue-700 to-blue-600" : "from-green-700 to-green-600"} px-8 py-5`}>
             <h2 className="text-xl font-bold text-white">{inscriptionType === "reinscription" ? "🔄 Formulaire de réinscription" : "📝 Nouvelle candidature"}</h2>
             <p className="text-green-100 text-sm mt-1">Tous les champs marqués d'un * sont obligatoires</p>
@@ -339,19 +507,18 @@ export default function Admission() {
                   <div><label className="text-sm font-semibold text-gray-700">Année académique</label><input type="text" name="anneeAcademique" value={formData.anneeAcademique} disabled className="w-full border rounded-xl p-3 mt-1 bg-gray-50" /></div>
                 </div>
                 
-                {/* Frais de scolarité */}
                 <div className="bg-gray-50 rounded-2xl p-5">
                   <h3 className="font-bold text-gray-800 mb-3">💰 Frais de scolarité 2025-2026</h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <p className="text-sm text-gray-500">Première tranche</p>
+                      <p className="text-sm text-gray-500">Régime Normal</p>
                       <p className="text-2xl font-bold text-green-600">50 000 FCFA</p>
-                      <p className="text-xs text-gray-400">À payer avant Décembre 2025</p>
+                      <p className="text-xs text-gray-400">À payer dès la rentrée académique</p>
                     </div>
                     <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <p className="text-sm text-gray-500">Deuxième tranche</p>
-                      <p className="text-2xl font-bold text-green-600">50 000 FCFA</p>
-                      <p className="text-xs text-gray-400">À payer avant Mai 2026</p>
+                      <p className="text-sm text-gray-500">Régime Spécial</p>
+                      <p className="text-2xl font-bold text-green-600">100 000 FCFA</p>
+                      <p className="text-xs text-gray-400">À payer dès la rentrée académique</p>
                     </div>
                   </div>
                 </div>
@@ -362,7 +529,7 @@ export default function Admission() {
               </div>
             )}
 
-            {/* NOUVEL ÉTUDIANT - ÉTAPE 1 */}
+            {/* NOUVEL ÉTUDIANT - ÉTAPE 1 (le reste du code inchangé) */}
             {inscriptionType === "nouveau" && currentStep === 1 && (
               <div className="grid md:grid-cols-2 gap-5">
                 <div><label className="text-sm font-semibold">Nom *</label><input type="text" name="nom" value={formData.nom} onChange={handleChange} className="w-full border rounded-xl p-3" /></div>
@@ -377,22 +544,21 @@ export default function Admission() {
               </div>
             )}
 
-            {/* NOUVEL ÉTUDIANT - ÉTAPE 2 */}
+            {/* (Le reste des étapes 2, 3, 4 reste identique à la version précédente) */}
             {inscriptionType === "nouveau" && currentStep === 2 && (
               <div className="grid md:grid-cols-2 gap-5">
                 <div><label className="text-sm font-semibold">Filière *</label><select name="filiere" value={formData.filiere} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option>{filieres.map(f => <option key={f}>{f}</option>)}</select></div>
                 <div><label className="text-sm font-semibold">Niveau *</label><select name="niveau" value={formData.niveau} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option><option>Licence</option><option>Master</option><option>Doctorat</option></select></div>
                 {formData.niveau && (<div><label className="text-sm font-semibold">Année *</label><select name="sousNiveau" value={formData.sousNiveau} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option>{sousNiveauxOptions[formData.niveau]?.map(opt => <option key={opt.value} value={opt.label}>{opt.label}</option>)}</select></div>)}
                 <div><label className="text-sm font-semibold">Mention Bac *</label><select name="mention" value={formData.mention} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option><option>Passable</option><option>Assez Bien</option><option>Bien</option><option>Très Bien</option></select></div>
-                <div><label className="text-sm font-semibold">Année Bac *</label><input type="number" name="anneeBac" value={formData.anneeBac} onChange={handleChange} className="w-full border rounded-xl p-3" placeholder="2024" /></div>
+                <div><label className="text-sm font-semibold">Année Bac *</label><input type="text" name="anneeBac" value={formData.anneeBac} onChange={handleChange} className="w-full border rounded-xl p-3" placeholder="2024" maxLength="4" /></div>
                 <div className="col-span-2 p-4 bg-green-50 rounded-xl text-center">
                   <p>💰 Frais d'inscription: <strong className="text-2xl">{tarifs[formData.niveau]?.toLocaleString() || 0} FCFA</strong></p>
-                  <p className="text-xs text-gray-500 mt-1">Le paiement sera demandé après validation de votre dossier</p>
+                  <p className="text-xs text-gray-500 mt-1">Le paiement vous sera demandé après validation de votre dossier</p>
                 </div>
               </div>
             )}
 
-            {/* NOUVEL ÉTUDIANT - ÉTAPE 3 */}
             {inscriptionType === "nouveau" && currentStep === 3 && (
               <div className="grid md:grid-cols-3 gap-5">
                 <FileUploadCard label="Diplôme / Relevé" docType="diplome" icon="🎓" />
@@ -403,7 +569,6 @@ export default function Admission() {
               </div>
             )}
 
-            {/* NOUVEL ÉTUDIANT - ÉTAPE 4 */}
             {inscriptionType === "nouveau" && currentStep === 4 && (
               <div className="text-center space-y-6">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto"><span className="text-5xl">📋</span></div>
@@ -417,7 +582,6 @@ export default function Admission() {
               </div>
             )}
 
-            {/* BOUTONS DE NAVIGATION */}
             {inscriptionType === "nouveau" && (
               <div className="flex justify-between mt-10 pt-6 border-t">
                 {currentStep > 1 && <button onClick={prevStep} className="px-6 py-3 bg-gray-200 rounded-xl font-semibold">← Précédent</button>}
@@ -427,7 +591,7 @@ export default function Admission() {
           </div>
         </div>
 
-        {/* Partenaires */}
+        {/* Partenaires paiement */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 mb-3">Partenaires paiement sécurisé</p>
           <div className="flex justify-center gap-6">
@@ -436,8 +600,7 @@ export default function Admission() {
           </div>
         </div>
       </div>
-      
-      {/* MODAL PAIEMENT */}
+  
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => {

@@ -13,7 +13,7 @@ export default function Footer() {
             </h2>
 
             <p className="text-gray-300 leading-relaxed">
-              Plateforme numérique officielle de gestion des inscriptions et des réinscription
+              Plateforme numérique officielle de gestion des inscriptions et réinscription
               universitaires et des services académiques.
             </p>
           </div>

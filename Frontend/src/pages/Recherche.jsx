@@ -56,7 +56,7 @@ export default function Recherche() {
       id: 2,
       titre: "Énergies Renouvelables en Zone Rurale",
       domaine: "Environnement",
-      chef: "Pr.MBAINAIBE Jérome ",
+      chef: "Pr.MBAINAIBEYE Jérome ",
       equipe: 12,
       budget: "250M FCFA",
       duree: "2025-2028",
@@ -80,7 +80,7 @@ export default function Recherche() {
       id: 4,
       titre: "Biodiversité et Conservation",
       domaine: "Environnement",
-      chef: "Dr. Yapara",
+      chef: "Dr.Franklin",
       equipe: 10,
       budget: "180M FCFA",
       duree: "2023-2027",
@@ -92,7 +92,7 @@ export default function Recherche() {
       id: 5,
       titre: "udm Campus - Université Connectée",
       domaine: "Technologie",
-      chef: "Dr. Octave",
+      chef: "Dr.Octave",
       equipe: 20,
       budget: "300M FCFA",
       duree: "2026-2030",
@@ -104,7 +104,7 @@ export default function Recherche() {
       id: 6,
       titre: "Économie Circulaire et Développement Durable",
       domaine: "Économie",
-      chef: "Mr. Ali",
+      chef: "Mr.Ali",
       equipe: 7,
       budget: "100M FCFA",
       duree: "2024-2028",
@@ -137,7 +137,7 @@ export default function Recherche() {
     {
       id: 3,
       titre: "Energies renouvelables et développement rural",
-      auteurs: "Hassan F., Mbai J., Nodjimbadem C.",
+      auteurs: "Djonba Ferkalbo., Lakdjolbo Julien., Neumambé ChristiantS.",
       revue: "énergie rénouvelabe",
       annee: 2023,
       citations: 37,
@@ -444,7 +444,6 @@ export default function Recherche() {
             {[
               { nom: "Université de N'Djaména", logo: "🏛️" },
               
-              
               { nom: "AUF", logo: "🌍" },
            
               { nom: "Banque Mondiale", logo: "🏦" },
@@ -462,7 +461,7 @@ export default function Recherche() {
         {/* APPEL À ACTION */}
         <div className="bg-gradient-to-r from-green-800 to-green-600 rounded-3xl p-12 text-white text-center shadow-2xl">
           <div className="max-w-3xl mx-auto">
-            <div className="text-6xl mb-4">🚀</div>
+           
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Rejoignez nos équipes de recherche
             </h2>

@@ -3,9 +3,13 @@ import bcrypt from 'bcryptjs';
 
 const UserSchema = new mongoose.Schema({
   nom: { type: String, required: true },
+  prenom: { type: String, default: '' },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['super_admin', 'admin'], default: 'admin' },
+  role: { type: String, enum: ['super_admin', 'admin', 'etudiant'], default: 'etudiant' },
+  telephone: { type: String, default: '' },
+  matricule: { type: String, default: '' },
+  estActif: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date }
 });

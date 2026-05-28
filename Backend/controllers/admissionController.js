@@ -26,16 +26,19 @@ const generateUniqueReference = async () => {
   return reference;
 };
 
-// === SOUMETTRE UN NOUVEL ÉTUDIANT ===
+// SOUMETTRE UN NOUVEL ÉTUDIANT (avec chemin relatif des fichiers)
 export const soumettreCandidature = async (req, res) => {
   try {
     const candidatureData = { ...req.body, inscriptionType: 'nouveau' };
     candidatureData.reference = await generateUniqueReference();
     
+    // Stocker uniquement le nom du fichier (chemin relatif)
     if (req.files) {
       candidatureData.documents = {};
       Object.keys(req.files).forEach(key => {
-        candidatureData.documents[key] = req.files[key][0].path;
+        // Récupérer uniquement le nom du fichier, pas le chemin absolu
+        const filename = req.files[key][0].filename;
+        candidatureData.documents[key] = filename;
       });
     }
     
@@ -45,6 +48,36 @@ export const soumettreCandidature = async (req, res) => {
     
     const candidature = new Admission(candidatureData);
     await candidature.save();
+    
+    // Envoyer email de confirmation
+    try {
+      await sendEmail(
+        candidature.email,
+        '📧 Confirmation de candidature - Université de Moundou',
+        `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"></head>
+        <body style="font-family: Arial, sans-serif;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #166534;">📧 Confirmation de candidature</h1>
+            <p>Bonjour <strong>${candidature.prenom} ${candidature.nom}</strong>,</p>
+            <p>Nous accusons réception de votre dossier de candidature pour l'année académique <strong>2025-2026</strong>.</p>
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 20px 0;">
+              <p><strong>📌 Votre référence unique:</strong> ${candidature.reference}</p>
+              <p><strong>📚 Filière:</strong> ${candidature.filiere}</p>
+            </div>
+            <p>Notre équipe examinera votre dossier sous 48h.</p>
+            <hr>
+            <p style="color: #666; font-size: 12px;">Université de Moundou</p>
+          </div>
+        </body>
+        </html>
+        `
+      );
+    } catch (emailError) {
+      console.log('⚠️ Email non envoyé:', emailError.message);
+    }
     
     res.status(201).json({
       success: true,
@@ -59,14 +92,13 @@ export const soumettreCandidature = async (req, res) => {
   }
 };
 
-// === SOUMETTRE UNE RÉINSCRIPTION ===
+// SOUMETTRE UNE RÉINSCRIPTION
 export const soumettreReinscription = async (req, res) => {
   try {
     console.log('📝 Données reçues:', req.body);
     
     const { matricule, nom, prenom, niveau, telephone, email, filiere, anneeAcademique } = req.body;
     
-    // Vérifier les champs obligatoires
     if (!matricule || !nom || !prenom || !niveau || !telephone || !email || !filiere) {
       return res.status(400).json({ 
         success: false, 
@@ -91,12 +123,11 @@ export const soumettreReinscription = async (req, res) => {
       montant: 50000,
       paymentStatus: 'en_attente',
       status: 'valide',
-      // Champs optionnels avec valeurs par défaut pour éviter les erreurs de validation
       sexe: '',
       telephoneParent: '',
       dateNaissance: '',
       lieuNaissance: '',
-      paysOrigine: '',
+      paysOrigine: 'Tchad',
       sousNiveau: '',
       mention: '',
       anneeBac: '',
@@ -108,30 +139,16 @@ export const soumettreReinscription = async (req, res) => {
     
     console.log('✅ Réinscription enregistrée:', reinscription.reference);
     
-    // Envoyer email de confirmation
     try {
       await sendEmail(
         reinscription.email,
         '🔄 Confirmation de réinscription - Université de Moundou',
         `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"></head>
-        <body style="font-family: Arial, sans-serif;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #166534;">🔄 Confirmation de réinscription</h1>
-            <p>Bonjour <strong>${prenom} ${nom}</strong>,</p>
-            <p>Votre réinscription pour l'année académique <strong>${anneeAcademique}</strong> a été enregistrée avec succès.</p>
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 20px 0;">
-              <p><strong>📌 Votre référence unique:</strong> ${reference}</p>
-              <p><strong>💰 Montant à payer:</strong> 50 000 FCFA (première tranche)</p>
-            </div>
-            <p>Rendez-vous sur <a href="http://localhost:5173/admission">notre plateforme</a> pour effectuer le paiement via Airtel Money ou Moov Money.</p>
-            <hr style="margin: 20px 0;">
-            <p style="color: #666; font-size: 12px;">Université de Moundou - Service des inscriptions</p>
-          </div>
-        </body>
-        </html>
+        <h1>🔄 Confirmation de réinscription</h1>
+        <p>Bonjour ${prenom} ${nom},</p>
+        <p>Votre réinscription a été enregistrée.</p>
+        <p>Référence: ${reference}</p>
+        <p>Montant: 50 000 FCFA</p>
         `
       );
     } catch (emailError) {
@@ -152,7 +169,7 @@ export const soumettreReinscription = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Cette réinscription existe déjà. Veuillez contacter l\'administration.' 
+        message: 'Cette réinscription existe déjà.' 
       });
     }
     
@@ -160,7 +177,7 @@ export const soumettreReinscription = async (req, res) => {
   }
 };
 
-// === VÉRIFIER STATUT ===
+// VÉRIFIER STATUT
 export const verifierStatut = async (req, res) => {
   try {
     const { reference } = req.params;
@@ -181,7 +198,8 @@ export const verifierStatut = async (req, res) => {
       niveau: candidature.niveau,
       filiere: candidature.filiere,
       email: candidature.email,
-      telephone: candidature.telephone
+      telephone: candidature.telephone,
+      documents: candidature.documents
     });
     
   } catch (error) {
@@ -190,7 +208,7 @@ export const verifierStatut = async (req, res) => {
   }
 };
 
-// === ENREGISTRER PAIEMENT ===
+// ENREGISTRER PAIEMENT
 export const enregistrerPaiement = async (req, res) => {
   try {
     const { candidatureId, reference, amount, method, phone } = req.body;
@@ -218,7 +236,7 @@ export const enregistrerPaiement = async (req, res) => {
   }
 };
 
-// === CONFIRMER PAIEMENT ===
+// CONFIRMER PAIEMENT
 export const confirmerPaiement = async (req, res) => {
   try {
     const { candidatureId, reference, amount, method, phone } = req.body;
@@ -239,36 +257,6 @@ export const confirmerPaiement = async (req, res) => {
     await candidature.save();
     
     console.log(`✅ Paiement confirmé pour ${candidature.nom} ${candidature.prenom}`);
-    
-    // Envoyer email de confirmation de paiement
-    try {
-      await sendEmail(
-        candidature.email,
-        '💰 Confirmation de paiement - Université de Moundou',
-        `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"></head>
-        <body style="font-family: Arial, sans-serif;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #166534;">💰 Paiement confirmé</h1>
-            <p>Bonjour <strong>${candidature.prenom} ${candidature.nom}</strong>,</p>
-            <p>Nous avons bien reçu votre paiement de <strong>${amount?.toLocaleString()} FCFA</strong>.</p>
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; margin: 20px 0;">
-              <p><strong>📌 Référence transaction:</strong> ${reference}</p>
-              <p><strong>📱 Mode de paiement:</strong> ${candidature.modePaiement}</p>
-            </div>
-            <p>Votre inscription est maintenant finalisée. Vous recevrez prochainement votre attestation.</p>
-            <hr style="margin: 20px 0;">
-            <p style="color: #666; font-size: 12px;">Université de Moundou - Service des inscriptions</p>
-          </div>
-        </body>
-        </html>
-        `
-      );
-    } catch (emailError) {
-      console.log('⚠️ Email de confirmation non envoyé:', emailError.message);
-    }
     
     res.status(200).json({ success: true, message: 'Paiement confirmé', reference });
     

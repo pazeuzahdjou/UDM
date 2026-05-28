@@ -11,11 +11,11 @@ import {
 import udmImage from "../assets/images/udm2.png";
 
 export default function Login() {
-
   const navigate = useNavigate();
-
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -27,26 +27,66 @@ export default function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Effacer l'erreur quand l'utilisateur modifie un champ
+    setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation simple
+    if (!formData.email || !formData.password) {
+      setError("Veuillez remplir tous les champs");
+      return;
+    }
+    
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-    console.log(formData);
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-   
+      const data = await response.json();
 
-    navigate("/");
+      if (response.ok) {
+        // Sauvegarder le token et les infos utilisateur
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        setSuccess("Connexion réussie ! Redirection...");
+        
+        // Rediriger vers la page d'admission après 2 secondes
+        setTimeout(() => {
+          navigate("/admission");
+        }, 1500);
+      } else {
+        setError(data.message || "Email ou mot de passe incorrect");
+      }
+    } catch (err) {
+      console.error("Erreur:", err);
+      setError("Erreur de connexion au serveur. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-
     <div
       className="
       min-h-screen
       bg-gradient-to-br
-      from-blue-950
-      via-blue-900
+      from-green-900
+      via-green-800
       to-black
       flex
       items-center
@@ -55,7 +95,6 @@ export default function Login() {
       py-10
       "
     >
-
       <div
         className="
         w-full
@@ -68,7 +107,6 @@ export default function Login() {
         lg:grid-cols-2
         "
       >
-
         {/* SECTION GAUCHE */}
         <div
           className="
@@ -78,14 +116,13 @@ export default function Login() {
           justify-center
           p-16
           bg-gradient-to-br
-          from-blue-900
-          to-blue-700
+          from-green-900
+          to-green-700
           text-white
           relative
           overflow-hidden
           "
         >
-
           <div
             className="
             absolute
@@ -100,7 +137,6 @@ export default function Login() {
           />
 
           <div className="relative z-10">
-
             <img
               src={udmImage}
               alt="UDM"
@@ -131,7 +167,7 @@ export default function Login() {
 
             <p
               className="
-              text-blue-100
+              text-green-100
               text-lg
               leading-relaxed
               "
@@ -142,9 +178,7 @@ export default function Login() {
               d’admission et suivre
               votre dossier académique.
             </p>
-
           </div>
-
         </div>
 
         {/* SECTION DROITE */}
@@ -157,19 +191,17 @@ export default function Login() {
           justify-center
           "
         >
-
           <div className="mb-10">
-
             <div
               className="
               w-16
               h-16
               rounded-2xl
-              bg-blue-100
+              bg-green-100
               flex
               items-center
               justify-center
-              text-blue-900
+              text-green-800
               mb-6
               "
             >
@@ -190,18 +222,25 @@ export default function Login() {
             <p className="text-gray-600">
               Connectez-vous à votre espace étudiant
             </p>
-
           </div>
 
-          {/* FORMULAIRE */}
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6"
-          >
+          {/* MESSAGES */}
+          {error && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-xl flex items-center gap-2">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-xl flex items-center gap-2">
+              <span>✅</span> {success}
+            </div>
+          )}
 
+          {/* FORMULAIRE */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* EMAIL */}
             <div>
-
               <label
                 className="
                 block
@@ -223,11 +262,12 @@ export default function Login() {
                 rounded-2xl
                 px-4
                 py-4
-                focus-within:border-blue-600
+                focus-within:border-green-500
+                focus-within:ring-2
+                focus-within:ring-green-100
                 transition
                 "
               >
-
                 <Mail
                   size={20}
                   className="text-gray-400"
@@ -247,14 +287,11 @@ export default function Login() {
                   "
                   required
                 />
-
               </div>
-
             </div>
 
             {/* PASSWORD */}
             <div>
-
               <label
                 className="
                 block
@@ -276,22 +313,19 @@ export default function Login() {
                 rounded-2xl
                 px-4
                 py-4
-                focus-within:border-blue-600
+                focus-within:border-green-500
+                focus-within:ring-2
+                focus-within:ring-green-100
                 transition
                 "
               >
-
                 <Lock
                   size={20}
                   className="text-gray-400"
                 />
 
                 <input
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -307,29 +341,16 @@ export default function Login() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(
-                      !showPassword
-                    )
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="focus:outline-none"
                 >
-
                   {showPassword ? (
-                    <EyeOff
-                      size={20}
-                      className="text-gray-500"
-                    />
+                    <EyeOff size={20} className="text-gray-500" />
                   ) : (
-                    <Eye
-                      size={20}
-                      className="text-gray-500"
-                    />
+                    <Eye size={20} className="text-gray-500" />
                   )}
-
                 </button>
-
               </div>
-
             </div>
 
             {/* OPTIONS */}
@@ -341,52 +362,64 @@ export default function Login() {
               text-sm
               "
             >
-
               <label
                 className="
                 flex
                 items-center
                 gap-2
                 text-gray-600
+                cursor-pointer
                 "
               >
-
-                <input type="checkbox" />
-
+                <input type="checkbox" className="rounded" />
                 Se souvenir de moi
-
               </label>
 
               <Link
                 to="/forgot-password"
                 className="
-                text-blue-700
+                text-green-700
                 hover:underline
                 "
               >
                 Mot de passe oublié ?
               </Link>
-
             </div>
 
             {/* BUTTON */}
             <button
               type="submit"
+              disabled={loading}
               className="
               w-full
-              bg-blue-900
-              hover:bg-blue-800
+              bg-gradient-to-r
+              from-green-600
+              to-green-700
+              hover:from-green-700
+              hover:to-green-800
               text-white
               py-4
               rounded-2xl
               font-semibold
               transition
               shadow-lg
+              disabled:opacity-50
+              disabled:cursor-not-allowed
+              flex
+              items-center
+              justify-center
+              gap-2
               "
             >
-              Se connecter
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Connexion en cours...
+                </>
+              ) : (
+                "Se connecter"
+              )}
             </button>
-
           </form>
 
           {/* FOOTER */}
@@ -397,13 +430,12 @@ export default function Login() {
             text-gray-600
             "
           >
-
             Vous n’avez pas de compte ?
 
             <Link
-              to="/register"
+              to="/inscription"
               className="
-              text-blue-700
+              text-green-700
               font-semibold
               ml-2
               hover:underline
@@ -411,13 +443,16 @@ export default function Login() {
             >
               Créer un compte
             </Link>
-
           </div>
 
+          {/* INFORMATIONS */}
+          <div className="mt-6 p-3 bg-gray-50 rounded-xl text-center">
+            <p className="text-xs text-gray-500">
+              Accès sécurisé - Espace étudiant Université de Moundou
+            </p>
+          </div>
         </div>
-
       </div>
-
     </div>
   );
 }

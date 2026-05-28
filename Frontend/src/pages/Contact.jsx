@@ -14,7 +14,6 @@ export default function Contact() {
   const [error, setError] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
-  // Animation au scroll pour la navbar
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
@@ -76,7 +75,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* HERO SECTION - avec effet de parallaxe */}
+
       <div className="relative bg-gradient-to-r from-green-800 to-green-600 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20 z-0"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
@@ -103,7 +102,8 @@ export default function Contact() {
 
       <div className="max-w-7xl mx-auto px-6 py-20">
         
-        {/* SECTION INFOS DE CONTACT - avec effet de glassmorphisme */}
+        
+      
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {infos.map((info, index) => (
             <div
@@ -259,12 +259,12 @@ export default function Contact() {
                   ></iframe>
                 </div>
                 <p className="text-center text-sm text-gray-500 mt-4 flex items-center justify-center gap-1">
-                  <span>📍</span> Université de Moundou, Quartier Dombao, Moundou, Tchad
+                  <span>📍</span> Université de Moundou, Quartier Bonon, Moundou, Tchad
                 </p>
               </div>
             </div>
 
-            {/* HORAIRES D'OUVERTURE - amélioré */}
+          
             <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-3xl p-8 text-white text-center relative overflow-hidden group">
               <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
               <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-yellow-400/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
@@ -279,7 +279,7 @@ export default function Contact() {
                 </div>
                 <div className="mt-6 pt-6 border-t border-purple-500 text-sm">
                   <p>📧 contact@univ-moundou.td</p>
-                  <p>📞 +235 66 XX XX XX</p>
+                  <p>📞 +235 63 89 98 36</p>
                 </div>
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* SECTION FAQ - améliorée */}
+        
         <div>
           <div className="text-center mb-12">
             <span className="inline-block bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
@@ -370,7 +370,7 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* CALL TO ACTION FINAL - amélioré */}
+      
         <div className="mt-20 bg-gradient-to-r from-green-600 to-green-700 rounded-3xl p-12 text-white text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>

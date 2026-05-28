@@ -1,5 +1,4 @@
-// ⚠️ SUPPRIMEZ cette ligne :
-// import MainLayout from "../layouts/MainLayout";
+;
 
 import udmImage from "../assets/images/udm3.png";
 import feminieImage from "../assets/images/femine.png";
@@ -57,9 +56,7 @@ export default function Universite() {
   ];
 
   return (
-    // ⚠️ SUPPRIMEZ <MainLayout> ici aussi
-    // ⚠️ Plus de <MainLayout> car c'est déjà dans App.jsx
-
+  
     <section className="bg-gray-50 py-20">
       <div className="max-w-7xl mx-auto px-6">
         {/* TITRE */}
@@ -76,10 +73,7 @@ export default function Universite() {
           {/* OVERLAY */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/70 flex items-center justify-center text-center px-8">
             <div>
-              <span className="inline-block bg-white/20 backdrop-blur-md border border-white/20 text-black px-5 py-2 rounded-full text-sm font-semibold tracking-wide mb-6">
-                Université publique du Tchad
-              </span>
-
+            
               <h1 className="text-5xl md:text-7xl font-black text-white mb-8 leading-tight drop-shadow-2xl">
                 Université de Moundou
               </h1>

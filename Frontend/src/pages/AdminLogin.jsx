@@ -1,4 +1,3 @@
-// Frontend/src/pages/AdminLogin.jsx
 import { useState } from "react";
 
 export default function AdminLogin() {
@@ -41,7 +40,7 @@ export default function AdminLogin() {
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <div style={{ fontSize: "3rem" }}>🎓</div>
           <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginTop: "0.5rem" }}>Université de Moundou</h1>
-          <p style={{ color: "#666", marginTop: "0.25rem" }}>Espace Administrateur</p>
+          <p style={{ color: "#666", marginTop: "0.25rem" }}>Votre Espace Administrateur</p>
         </div>
 
         <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "1.5rem", textAlign: "center" }}>Connexion</h2>

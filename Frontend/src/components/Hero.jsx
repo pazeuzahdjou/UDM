@@ -102,7 +102,7 @@ export default function Hero() {
           className="
           text-lg
           md:text-2xl
-          text-gray-200
+          text-white
           max-w-4xl
           mx-auto
           leading-relaxed
@@ -157,11 +157,9 @@ export default function Hero() {
           <a
             href="#formations"
             className="
-            bg-black-900
-            hover:bg-white/20
+            bg-blue-600
+            hover:bg-green-700
             backdrop-blur-md
-            border
-            border-white/20
             px-8
             py-4
             rounded-2xl
@@ -194,7 +192,7 @@ export default function Hero() {
           {/* CARD */}
           <div
             className="
-            bg-white/10
+            bg-white/5
             backdrop-blur-lg
             border
             border-white/10
@@ -217,7 +215,7 @@ export default function Hero() {
           {/* CARD */}
           <div
             className="
-            bg-white/10
+            bg-white/5
             backdrop-blur-lg
             border
             border-white/10
@@ -240,7 +238,7 @@ export default function Hero() {
           {/* CARD */}
           <div
             className="
-            bg-white/10
+            bg-white/5
             backdrop-blur-lg
             border
             border-white/10
@@ -263,7 +261,7 @@ export default function Hero() {
           {/* CARD */}
           <div
             className="
-            bg-white/10
+            bg-white/5
             backdrop-blur-lg
             border
             border-white/10
