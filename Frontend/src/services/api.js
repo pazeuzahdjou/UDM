@@ -118,60 +118,6 @@ class ApiService {
     }
   }
 
-  // ============ PAIEMENTS ============
-  
-  // Initier un paiement Airtel Money
-  async initierPaiementAirtel(candidatureId, amount, phone, reference) {
-    return this.post('/payments/airtel/initiate', {
-      candidatureId,
-      amount,
-      phone,
-      reference
-    });
-  }
-
-  // Vérifier statut paiement Airtel
-  async verifierStatutAirtel(transactionId) {
-    return this.get(`/payments/airtel/status/${transactionId}`);
-  }
-
-  // Initier un paiement Moov Money
-  async initierPaiementMoov(candidatureId, amount, phone, reference) {
-    return this.post('/payments/moov/initiate', {
-      candidatureId,
-      amount,
-      phone,
-      reference
-    });
-  }
-
-  // Vérifier statut paiement Moov
-  async verifierStatutMoov(transactionId) {
-    return this.get(`/payments/moov/status/${transactionId}`);
-  }
-
-  // Paiement direct (sans redirection)
-  async paiementDirect(candidatureId, amount, method, phone, reference) {
-    return this.post('/payments/direct', {
-      candidatureId,
-      amount,
-      method,
-      phone,
-      reference
-    });
-  }
-
-  // Confirmer un paiement
-  async confirmerPaiement(candidatureId, reference, amount, method, phone) {
-    return this.post('/payments/confirm', {
-      candidatureId,
-      reference,
-      amount,
-      method,
-      phone
-    });
-  }
-
   // ============ AUTHENTIFICATION ============
   
   // Login étudiant
@@ -236,6 +182,60 @@ class ApiService {
   // Vérifier le statut d'une candidature
   async verifierStatut(reference) {
     return this.get(`/statut/${reference}`);
+  }
+
+  // ============ PAIEMENTS ============
+  
+  // Initier un paiement Airtel Money
+  async initierPaiementAirtel(candidatureId, amount, phone, reference) {
+    return this.post('/payments/airtel/initiate', {
+      candidatureId,
+      amount,
+      phone,
+      reference
+    });
+  }
+
+  // Vérifier statut paiement Airtel
+  async verifierStatutAirtel(transactionId) {
+    return this.get(`/payments/airtel/status/${transactionId}`);
+  }
+
+  // Initier un paiement Moov Money
+  async initierPaiementMoov(candidatureId, amount, phone, reference) {
+    return this.post('/payments/moov/initiate', {
+      candidatureId,
+      amount,
+      phone,
+      reference
+    });
+  }
+
+  // Vérifier statut paiement Moov
+  async verifierStatutMoov(transactionId) {
+    return this.get(`/payments/moov/status/${transactionId}`);
+  }
+
+  // Paiement direct (sans redirection)
+  async paiementDirect(candidatureId, amount, method, phone, reference) {
+    return this.post('/payments/direct', {
+      candidatureId,
+      amount,
+      method,
+      phone,
+      reference
+    });
+  }
+
+  // Confirmer un paiement
+  async confirmerPaiement(candidatureId, reference, amount, method, phone) {
+    return this.post('/payments/confirm', {
+      candidatureId,
+      reference,
+      amount,
+      method,
+      phone
+    });
   }
 
   // ============ ADMIN ============

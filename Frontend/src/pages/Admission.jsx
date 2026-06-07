@@ -441,18 +441,18 @@ export default function Admission() {
 
   // RENDU PRINCIPAL (après authentification)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-950 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-50 py-12">
       <div className="max-w-5xl mx-auto px-4">
         
         {/* Message de bienvenue */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-6 text-white text-center">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-6 text-black text-center">
           <p>👋 Bonjour <strong>{user?.nom || user?.email}</strong>, bienvenue dans votre espace d'inscription</p>
         </div>
         
         {/* Sélection type d'inscription */}
         <div className="flex justify-center gap-4 mb-8">
           <button onClick={() => { setInscriptionType("nouveau"); setCurrentStep(1); setErreur(""); setSuccess(""); }} className={`px-8 py-3 rounded-xl font-semibold transition ${inscriptionType === "nouveau" ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
-            🎓 Nouvel étudiant
+            Nouvel étudiant
           </button>
           <button onClick={() => { setInscriptionType("reinscription"); setCurrentStep(1); setErreur(""); setSuccess(""); }} className={`px-8 py-3 rounded-xl font-semibold transition ${inscriptionType === "reinscription" ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
             🔄 Réinscription

@@ -71,6 +71,13 @@ export default function Profil() {
     }
   };
 
+    const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event('storage'));
+    navigate("/");
+  };
+
   const handleUpdateProfil = async (e) => {
     e.preventDefault();
     setUpdating(true);

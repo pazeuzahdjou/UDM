@@ -27,14 +27,12 @@ export default function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Effacer l'erreur quand l'utilisateur modifie un champ
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation simple
     if (!formData.email || !formData.password) {
       setError("Veuillez remplir tous les champs");
       return;
@@ -63,9 +61,11 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
+        // ✅ DÉCLENCHER LA MISE À JOUR DE LA NAVBAR
+        window.dispatchEvent(new Event('storage'));
+        
         setSuccess("Connexion réussie ! Redirection...");
         
-        // Rediriger vers la page d'admission après 2 secondes
         setTimeout(() => {
           navigate("/admission");
         }, 1500);
@@ -85,8 +85,8 @@ export default function Login() {
       className="
       min-h-screen
       bg-gradient-to-br
-      from-green-900
-      via-green-800
+      from-yellow-200
+      via-yellow-100
       to-black
       flex
       items-center
@@ -116,8 +116,8 @@ export default function Login() {
           justify-center
           p-16
           bg-gradient-to-br
-          from-green-900
-          to-green-700
+          from-blue-950
+          to-blue-700
           text-white
           relative
           overflow-hidden
@@ -192,21 +192,7 @@ export default function Login() {
           "
         >
           <div className="mb-10">
-            <div
-              className="
-              w-16
-              h-16
-              rounded-2xl
-              bg-green-100
-              flex
-              items-center
-              justify-center
-              text-green-800
-              mb-6
-              "
-            >
-              <GraduationCap size={32} />
-            </div>
+            
 
             <h2
               className="

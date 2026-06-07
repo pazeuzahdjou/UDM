@@ -76,7 +76,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
 
-      <div className="relative bg-gradient-to-r from-green-800 to-green-600 text-white overflow-hidden">
+      <div className="relative bg-gradient-to-r from-yellow-400 to-gyellow-200 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20 z-0"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
