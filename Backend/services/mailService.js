@@ -65,11 +65,9 @@ const initTransporter = () => {
 
 initTransporter();
 
-// 📌 GÉNÉRER LE HTML DU LOGO (CORRIGÉ)
+
 const getLogoHtml = () => {
-  if (logoBase64) {
-    return `<img src="data:image/png;base64,${logoBase64}" alt="Université de Moundou" style="max-width: 120px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">`;
-  }
+  // Retourner directement le texte sans chercher le logo
   return `<div style="font-size: 20px; font-weight: bold; color: #1e5a3a; text-align: center;">🎓 Université de Moundou</div>`;
 };
 

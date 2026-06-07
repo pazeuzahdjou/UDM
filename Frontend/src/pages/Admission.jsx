@@ -30,7 +30,8 @@ export default function Admission() {
     filiere: "", niveau: "", sousNiveau: "", mention: "", anneeBac: "", 
     message: "",
     matricule: "",
-    anneeAcademique: "2025-2026"
+    anneeAcademique: "2025-2026",
+    regime: "normal" // NOUVEAU : normal (50000) ou special (100000)
   });
   
   const [documents, setDocuments] = useState({ diplome: null, certificatBac: null, nationalite: null, naissance: null, photo: null });
@@ -48,13 +49,39 @@ export default function Admission() {
 
   const fileInputs = { diplome: useRef(null), certificatBac: useRef(null), nationalite: useRef(null), naissance: useRef(null), photo: useRef(null) };
 
+  // ============ TARIFS PAR NIVEAU ET RÉGIME ============
+  const tarifsParNiveau = { 
+    Licence: 50000, 
+    Master: 75000, 
+    Doctorat: 100000
+  };
+  
+  // Montant supplémentaire pour régime spécial
+  const MONTANT_SUPPLEMENTAIRE_SPECIAL = 50000; // 50 000 FCFA de plus
+  
+  // Calculer le montant total en fonction du niveau et du régime
+  const calculerMontantTotal = (niveau, regime) => {
+    const montantBase = tarifsParNiveau[niveau] || 0;
+    if (regime === "special") {
+      return montantBase + MONTANT_SUPPLEMENTAIRE_SPECIAL;
+    }
+    return montantBase;
+  };
+
+  // Mettre à jour le montant à payer quand le niveau ou le régime change
+  useEffect(() => {
+    if (formData.niveau) {
+      const montant = calculerMontantTotal(formData.niveau, formData.regime);
+      setPaymentAmount(montant);
+    }
+  }, [formData.niveau, formData.regime]);
+
   // ============ VÉRIFICATION DE L'AUTHENTIFICATION ============
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
     
     if (!token) {
-      // Rediriger vers la page de connexion
       navigate("/connexion");
       return;
     }
@@ -64,7 +91,6 @@ export default function Admission() {
       setUser(userInfo);
       setIsAuthenticated(true);
       
-      // Pré-remplir l'email avec celui de l'utilisateur connecté
       if (userInfo.email) {
         setFormData(prev => ({ ...prev, email: userInfo.email }));
         if (userInfo.nom) setFormData(prev => ({ ...prev, nom: userInfo.nom }));
@@ -79,7 +105,6 @@ export default function Admission() {
     }
   }, [navigate]);
 
-  // Si authentification en cours, afficher un loader
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 to-green-700 flex items-center justify-center">
@@ -91,12 +116,11 @@ export default function Admission() {
     );
   }
 
-  // Si non authentifié, ne pas afficher le contenu (redirection déjà faite)
   if (!isAuthenticated) {
     return null;
   }
 
-  // ============ FONCTIONS DE VALIDATION (inchangées) ============
+  // ============ FONCTIONS DE VALIDATION ============
   const validateDateNaissance = (date) => {
     if (!date) return "La date de naissance est requise";
     const birthYear = new Date(date).getFullYear();
@@ -204,8 +228,6 @@ export default function Admission() {
     return true;
   };
 
-  // ============ FONCTIONS EXISTANTES ============
-
   const checkCandidatureStatus = async () => {
     if (!searchRef) {
       setErreur("Veuillez entrer une référence");
@@ -220,8 +242,6 @@ export default function Admission() {
         setCandidatureStatus(data.status);
         setCandidatureInfo(data);
         if (data.status === 'valide') {
-          const montant = data.montant || tarifs[data.niveau] || 50000;
-          setPaymentAmount(montant);
           setCandidatureId(data.id);
           setCandidatureRef(searchRef);
         }
@@ -249,7 +269,8 @@ export default function Admission() {
       Object.keys(formData).forEach(k => formData[k] && formDataToSend.append(k, formData[k]));
       Object.keys(documents).forEach(k => documents[k] && formDataToSend.append(k, documents[k]));
       formDataToSend.append("inscriptionType", inscriptionType);
-      formDataToSend.append("montant", tarifs[formData.niveau] || 0);
+      formDataToSend.append("montant", paymentAmount);
+      formDataToSend.append("regime", formData.regime);
       
       const data = await api.soumettreCandidature(formDataToSend);
       
@@ -287,7 +308,8 @@ export default function Admission() {
         telephone: formData.telephone,
         email: formData.email,
         filiere: formData.filiere,
-        anneeAcademique: formData.anneeAcademique
+        anneeAcademique: formData.anneeAcademique,
+        regime: formData.regime
       });
       
       if (data.success) {
@@ -452,7 +474,7 @@ export default function Admission() {
         {/* Sélection type d'inscription */}
         <div className="flex justify-center gap-4 mb-8">
           <button onClick={() => { setInscriptionType("nouveau"); setCurrentStep(1); setErreur(""); setSuccess(""); }} className={`px-8 py-3 rounded-xl font-semibold transition ${inscriptionType === "nouveau" ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
-            Nouvel étudiant
+            🎓 Nouvel étudiant
           </button>
           <button onClick={() => { setInscriptionType("reinscription"); setCurrentStep(1); setErreur(""); setSuccess(""); }} className={`px-8 py-3 rounded-xl font-semibold transition ${inscriptionType === "reinscription" ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
             🔄 Réinscription
@@ -507,18 +529,49 @@ export default function Admission() {
                   <div><label className="text-sm font-semibold text-gray-700">Année académique</label><input type="text" name="anneeAcademique" value={formData.anneeAcademique} disabled className="w-full border rounded-xl p-3 mt-1 bg-gray-50" /></div>
                 </div>
                 
+                {/* Régime pour réinscription */}
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <h3 className="font-bold text-gray-800 mb-3">💰 Choix du régime</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${formData.regime === 'normal' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="regime" value="normal" checked={formData.regime === 'normal'} onChange={handleChange} className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Régime Normal</p>
+                          <p className="text-sm text-gray-500">Frais de base</p>
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-green-600">{calculerMontantTotal(formData.niveau || 'Licence', 'normal').toLocaleString()} FCFA</p>
+                    </label>
+                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${formData.regime === 'special' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="regime" value="special" checked={formData.regime === 'special'} onChange={handleChange} className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Régime Spécial</p>
+                          <p className="text-sm text-gray-500">Avec options supplémentaires</p>
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-green-600">{calculerMontantTotal(formData.niveau || 'Licence', 'special').toLocaleString()} FCFA</p>
+                    </label>
+                  </div>
+                  <div className="mt-4 p-3 bg-blue-50 rounded-xl">
+                    <p className="text-sm text-blue-800">ℹ️ Le régime spécial donne accès à des services supplémentaires (bibliothèque 24h/24, accès aux clubs, etc.)</p>
+                  </div>
+                </div>
+                
+                {/* Frais de scolarité */}
                 <div className="bg-gray-50 rounded-2xl p-5">
                   <h3 className="font-bold text-gray-800 mb-3">💰 Frais de scolarité 2025-2026</h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <p className="text-sm text-gray-500">Régime Normal</p>
+                      <p className="text-sm text-gray-500">Première tranche</p>
                       <p className="text-2xl font-bold text-green-600">50 000 FCFA</p>
                       <p className="text-xs text-gray-400">À payer dès la rentrée académique</p>
                     </div>
                     <div className="bg-white rounded-xl p-4 text-center border border-gray-200">
-                      <p className="text-sm text-gray-500">Régime Spécial</p>
-                      <p className="text-2xl font-bold text-green-600">100 000 FCFA</p>
-                      <p className="text-xs text-gray-400">À payer dès la rentrée académique</p>
+                      <p className="text-sm text-gray-500">Deuxième tranche</p>
+                      <p className="text-2xl font-bold text-green-600">50 000 FCFA</p>
+                      <p className="text-xs text-gray-400">À payer avant Mai 2026</p>
                     </div>
                   </div>
                 </div>
@@ -529,7 +582,7 @@ export default function Admission() {
               </div>
             )}
 
-            {/* NOUVEL ÉTUDIANT - ÉTAPE 1 (le reste du code inchangé) */}
+            {/* NOUVEL ÉTUDIANT - ÉTAPE 1 */}
             {inscriptionType === "nouveau" && currentStep === 1 && (
               <div className="grid md:grid-cols-2 gap-5">
                 <div><label className="text-sm font-semibold">Nom *</label><input type="text" name="nom" value={formData.nom} onChange={handleChange} className="w-full border rounded-xl p-3" /></div>
@@ -544,7 +597,7 @@ export default function Admission() {
               </div>
             )}
 
-            {/* (Le reste des étapes 2, 3, 4 reste identique à la version précédente) */}
+            {/* NOUVEL ÉTUDIANT - ÉTAPE 2 (avec choix du régime) */}
             {inscriptionType === "nouveau" && currentStep === 2 && (
               <div className="grid md:grid-cols-2 gap-5">
                 <div><label className="text-sm font-semibold">Filière *</label><select name="filiere" value={formData.filiere} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option>{filieres.map(f => <option key={f}>{f}</option>)}</select></div>
@@ -552,13 +605,45 @@ export default function Admission() {
                 {formData.niveau && (<div><label className="text-sm font-semibold">Année *</label><select name="sousNiveau" value={formData.sousNiveau} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option>{sousNiveauxOptions[formData.niveau]?.map(opt => <option key={opt.value} value={opt.label}>{opt.label}</option>)}</select></div>)}
                 <div><label className="text-sm font-semibold">Mention Bac *</label><select name="mention" value={formData.mention} onChange={handleChange} className="w-full border rounded-xl p-3"><option value="">Sélectionner</option><option>Passable</option><option>Assez Bien</option><option>Bien</option><option>Très Bien</option></select></div>
                 <div><label className="text-sm font-semibold">Année Bac *</label><input type="text" name="anneeBac" value={formData.anneeBac} onChange={handleChange} className="w-full border rounded-xl p-3" placeholder="2024" maxLength="4" /></div>
+                
+                {/* Choix du régime */}
+                <div className="col-span-2">
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Régime d'études *</label>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${formData.regime === 'normal' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="regime" value="normal" checked={formData.regime === 'normal'} onChange={handleChange} className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Régime Normal</p>
+                          <p className="text-sm text-gray-500">Formation standard</p>
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-green-600">{calculerMontantTotal(formData.niveau, 'normal').toLocaleString()} FCFA</p>
+                    </label>
+                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${formData.regime === 'special' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                      <div className="flex items-center gap-3">
+                        <input type="radio" name="regime" value="special" checked={formData.regime === 'special'} onChange={handleChange} className="w-5 h-5 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-800">Régime Spécial</p>
+                          <p className="text-sm text-gray-500">Avec options supplémentaires</p>
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-green-600">{calculerMontantTotal(formData.niveau, 'special').toLocaleString()} FCFA</p>
+                    </label>
+                  </div>
+                </div>
+                
                 <div className="col-span-2 p-4 bg-green-50 rounded-xl text-center">
-                  <p>💰 Frais d'inscription: <strong className="text-2xl">{tarifs[formData.niveau]?.toLocaleString() || 0} FCFA</strong></p>
+                  <p>💰 Frais d'inscription: <strong className="text-2xl">{paymentAmount.toLocaleString()} FCFA</strong></p>
                   <p className="text-xs text-gray-500 mt-1">Le paiement vous sera demandé après validation de votre dossier</p>
+                  {formData.regime === 'special' && (
+                    <p className="text-xs text-green-600 mt-1">✨ Vous avez choisi le régime spécial : +50 000 FCFA pour des services premium</p>
+                  )}
                 </div>
               </div>
             )}
 
+            {/* NOUVEL ÉTUDIANT - ÉTAPE 3 (documents) */}
             {inscriptionType === "nouveau" && currentStep === 3 && (
               <div className="grid md:grid-cols-3 gap-5">
                 <FileUploadCard label="Diplôme / Relevé" docType="diplome" icon="🎓" />
@@ -569,6 +654,7 @@ export default function Admission() {
               </div>
             )}
 
+            {/* NOUVEL ÉTUDIANT - ÉTAPE 4 (vérification) */}
             {inscriptionType === "nouveau" && currentStep === 4 && (
               <div className="text-center space-y-6">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto"><span className="text-5xl">📋</span></div>
@@ -576,7 +662,7 @@ export default function Admission() {
                 <div className="bg-gray-50 rounded-xl p-6 text-left max-w-md mx-auto">
                   <p><strong>👤 Candidat:</strong> {formData.nom} {formData.prenom}</p>
                   <p><strong>📚 Filière:</strong> {formData.filiere} - {formData.sousNiveau}</p>
-                  <p><strong>💰 Frais:</strong> {tarifs[formData.niveau]?.toLocaleString()} FCFA</p>
+                  <p><strong>💰 Frais:</strong> {paymentAmount.toLocaleString()} FCFA ({formData.regime === 'normal' ? 'Régime Normal' : 'Régime Spécial'})</p>
                 </div>
                 <p className="text-sm text-gray-500">Un email de confirmation vous sera envoyé après soumission</p>
               </div>

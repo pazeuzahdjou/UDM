@@ -17,13 +17,11 @@ class ApiService {
     return localStorage.getItem('token');
   }
 
-  // Headers par défaut (priorité au token étudiant, puis admin)
-  getHeaders() {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
+  // Headers pour les requêtes normales (sans Content-Type fixe)
+  getHeaders(isFormData = false) {
+    const headers = {};
     
-    // Priorité au token étudiant
+    // Ajouter le token
     const userToken = this.getUserToken();
     if (userToken) {
       headers['Authorization'] = `Bearer ${userToken}`;
@@ -34,18 +32,25 @@ class ApiService {
       }
     }
     
+    // Ajouter Content-Type uniquement si ce n'est pas du FormData
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
     return headers;
   }
 
   // Headers pour les requêtes admin uniquement
-  getAdminHeaders() {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
+  getAdminHeaders(isFormData = false) {
+    const headers = {};
     
     const adminToken = this.getAdminToken();
     if (adminToken) {
       headers['Authorization'] = `Bearer ${adminToken}`;
+    }
+    
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
     }
     
     return headers;
@@ -54,7 +59,7 @@ class ApiService {
   // Méthodes HTTP
   async get(endpoint, useAdminAuth = false) {
     try {
-      const headers = useAdminAuth ? this.getAdminHeaders() : this.getHeaders();
+      const headers = useAdminAuth ? this.getAdminHeaders(false) : this.getHeaders(false);
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'GET',
         headers
@@ -68,12 +73,10 @@ class ApiService {
 
   async post(endpoint, data, isFormData = false, useAdminAuth = false) {
     try {
-      const headers = useAdminAuth ? this.getAdminHeaders() : this.getHeaders();
-      
-      // Pour FormData, ne pas définir Content-Type (le navigateur le fait automatiquement)
-      if (!isFormData) {
-        headers['Content-Type'] = 'application/json';
-      }
+      // 🔧 CORRECTION : Passer isFormData pour ne pas ajouter Content-Type
+      const headers = useAdminAuth 
+        ? this.getAdminHeaders(isFormData) 
+        : this.getHeaders(isFormData);
       
       const options = {
         method: 'POST',
@@ -91,7 +94,7 @@ class ApiService {
 
   async put(endpoint, data, useAdminAuth = false) {
     try {
-      const headers = useAdminAuth ? this.getAdminHeaders() : this.getHeaders();
+      const headers = useAdminAuth ? this.getAdminHeaders(false) : this.getHeaders(false);
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'PUT',
         headers,
@@ -106,7 +109,7 @@ class ApiService {
 
   async delete(endpoint, useAdminAuth = false) {
     try {
-      const headers = useAdminAuth ? this.getAdminHeaders() : this.getHeaders();
+      const headers = useAdminAuth ? this.getAdminHeaders(false) : this.getHeaders(false);
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'DELETE',
         headers
@@ -120,37 +123,30 @@ class ApiService {
 
   // ============ AUTHENTIFICATION ============
   
-  // Login étudiant
   async login(email, password) {
     return this.post('/auth/login', { email, password });
   }
 
-  // Inscription étudiant
   async register(userData) {
     return this.post('/auth/register', userData);
   }
 
-  // Récupérer le profil
   async getProfil() {
     return this.get('/auth/profil');
   }
 
-  // Mettre à jour le profil
   async updateProfil(data) {
     return this.put('/auth/profil', data);
   }
 
-  // Changer le mot de passe
   async changePassword(oldPassword, newPassword) {
     return this.put('/auth/change-password', { oldPassword, newPassword });
   }
 
-  // Récupérer mes candidatures
   async getMesCandidatures() {
     return this.get('/auth/mes-candidatures');
   }
 
-  // Télécharger l'attestation
   async getAttestation(candidatureId) {
     const token = this.getUserToken();
     if (!token) throw new Error('Non authentifié');
@@ -169,24 +165,20 @@ class ApiService {
 
   // ============ ADMISSION ============
   
-  // Soumettre une candidature (nouvel étudiant)
   async soumettreCandidature(formData) {
     return this.post('/admissions', formData, true);
   }
 
-  // Soumettre une réinscription
   async soumettreReinscription(data) {
     return this.post('/reinscription', data);
   }
 
-  // Vérifier le statut d'une candidature
   async verifierStatut(reference) {
     return this.get(`/statut/${reference}`);
   }
 
   // ============ PAIEMENTS ============
   
-  // Initier un paiement Airtel Money
   async initierPaiementAirtel(candidatureId, amount, phone, reference) {
     return this.post('/payments/airtel/initiate', {
       candidatureId,
@@ -196,12 +188,10 @@ class ApiService {
     });
   }
 
-  // Vérifier statut paiement Airtel
   async verifierStatutAirtel(transactionId) {
     return this.get(`/payments/airtel/status/${transactionId}`);
   }
 
-  // Initier un paiement Moov Money
   async initierPaiementMoov(candidatureId, amount, phone, reference) {
     return this.post('/payments/moov/initiate', {
       candidatureId,
@@ -211,12 +201,10 @@ class ApiService {
     });
   }
 
-  // Vérifier statut paiement Moov
   async verifierStatutMoov(transactionId) {
     return this.get(`/payments/moov/status/${transactionId}`);
   }
 
-  // Paiement direct (sans redirection)
   async paiementDirect(candidatureId, amount, method, phone, reference) {
     return this.post('/payments/direct', {
       candidatureId,
@@ -227,7 +215,6 @@ class ApiService {
     });
   }
 
-  // Confirmer un paiement
   async confirmerPaiement(candidatureId, reference, amount, method, phone) {
     return this.post('/payments/confirm', {
       candidatureId,
@@ -240,39 +227,32 @@ class ApiService {
 
   // ============ ADMIN ============
   
-  // Login admin
   async adminLogin(email, password) {
     return this.post('/auth/login', { email, password }, false, true);
   }
 
-  // Récupérer toutes les candidatures (admin)
   async getCandidatures(status = 'tous', page = 1, search = '') {
     return this.get(`/admin/candidatures?status=${status}&page=${page}&search=${search}`, true);
   }
 
-  // Récupérer les statistiques (admin)
   async getStats() {
     return this.get('/admin/stats', true);
   }
 
-  // Valider une candidature (admin)
   async validerCandidature(id, commentaire = '') {
     return this.put(`/admin/candidatures/${id}/valider`, { commentaire }, true);
   }
 
-  // Rejeter une candidature (admin)
   async rejeterCandidature(id, commentaire = '') {
     return this.put(`/admin/candidatures/${id}/rejeter`, { commentaire }, true);
   }
 
-  // Récupérer une candidature par ID (admin)
   async getCandidatureById(id) {
     return this.get(`/admin/candidatures/${id}`, true);
   }
 
   // ============ CONTACT ============
   
-  // Envoyer un message de contact
   async envoyerMessageContact(data) {
     return this.post('/contact', data);
   }
