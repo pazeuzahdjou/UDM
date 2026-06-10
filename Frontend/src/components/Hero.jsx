@@ -50,32 +50,6 @@ export default function Hero() {
         text-white
         "
       >
-
-        {/* BADGE */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="
-          inline-block
-          bg-white/10
-          backdrop-blur-md
-          border
-          border-white/20
-          px-6
-          py-3
-          rounded-full
-          text-sm
-          font-semibold
-          tracking-wide
-          mb-8
-          "
-        >
-
-          🎓 Plateforme officielle d’admission universitaire
-
-        </motion.div>
-
         {/* TITRE */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}

@@ -66,8 +66,8 @@ export default function Contact() {
 
   const questions = [
     { q: "Comment s'inscrire à l'université ?", a: "Rendez-vous sur notre page Admission et suivez le formulaire en ligne." },
-    { q: "Quels sont les frais d'inscription ?", a: "Les frais varient selon le niveau : Licence 50.000 FCFA, Master 50.000 FCFA, Doctorat 100.000 FCFA." },
-    { q: "Où se trouve l'université ?", a: "Notre campus principal est situé à Moundou, quartier Dombao." },
+    { q: "Quels sont les frais d'inscription ?", a: "Les frais varient selon le niveau : Licence 50.000 FCFA, Master 200.000 FCFA, Doctorat 500 .000 FCFA." },
+    { q: "Où se trouve l'université ?", a: "Notre campus principal est situé à Moundou, quartier Bonon." },
     { q: "Comment contacter un enseignant ?", a: "Utilisez notre annuaire en ligne ou contactez le secrétariat de la faculté." }
   ];
 
@@ -84,11 +84,11 @@ export default function Contact() {
         <div className="absolute top-20 left-20 w-32 h-32 bg-green-400/20 rounded-full blur-2xl"></div>
         <div className="absolute bottom-20 right-20 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-full text-sm font-semibold mb-6 animate-pulse">
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-full text-black font-semibold mb-6 animate-pulse">
             <span>📞</span> Nous sommes à votre écoute
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fadeInUp">Contactez-nous</h1>
-          <p className="text-xl text-green-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-black font-bold mb-6 animate-fadeInUp">Contactez-nous</h1>
+          <p className="text-xl text-black max-w-3xl mx-auto">
             Une question ? Un besoin d'information ? Notre équipe est là pour vous accompagner.
           </p>
           {/* Flèche de scroll */}
@@ -290,7 +290,7 @@ export default function Contact() {
         <div className="mb-20">
           <div className="text-center mb-12">
             <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4 animate-pulse">
-              🎯 Services dédiés
+              Services dédiés
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
               Contactez directement nos services
@@ -376,7 +376,7 @@ export default function Contact() {
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
           <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-yellow-400/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
           <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎓</div>
+            
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Prêt à rejoindre l'Université de Moundou ?
             </h2>

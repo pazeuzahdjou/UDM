@@ -31,7 +31,9 @@ export default function Home() {
     { titre: "Biologie", icon: "🧬", description: "Biotechnologies, Biologie Végétale", color: "from-emerald-500 to-green-500", details: "Licence" },
     { titre: "Chimie", icon: "⚗️", description: "Chimie industrielle, pharmacie, matériaux", color: "from-teal-500 to-cyan-500", details: "Licence" },
     { titre: "Télécommunications", icon: "📡", description: "Réseaux, 5G, IoT, fibre optique", color: "from-indigo-500 to-purple-500", details: "Licence" },
-    { titre: "Géologie", icon: "⛰️", description: "Exploration minière, hydrogéologie", color: "from-amber-500 to-orange-500", details: "Licence" }
+    { titre: "Géographie", icon: "⛰️", description: "Exploitation environnementale, climatologie, urbanisme", color: "from-green-500 to-orange-500", details: "Licence/Master" },
+    { titre: "Comptabilité & Finance", icon: "⛰️", description: "Moyen technique de la comptabilité et finace, ", color: "from-amber-500 to-orange-500", details: "Licence" },
+    { titre: "Economie Monaitaire et Banquaire", icon: "⛰️", description: "Etude de la monnaie électronique et de billets de banque", color: "from-amber-500 to-orange-500", details: "Licence" }
   ];
 
   const actualites = [
@@ -155,17 +157,6 @@ export default function Home() {
                 alt="Université de Moundou"
                 className="relative w-full h-[500px] object-cover rounded-3xl shadow-2xl group-hover:scale-[1.02] transition duration-500"
               />
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">🏆</span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800">Top Université</p>
-                    <p className="text-xs text-gray-500">Certifiée Excellence</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div>
@@ -189,18 +180,12 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ============================================================ */}
-      {/* FORMATIONS - VERSION HUMANISÉE */}
-      {/* ============================================================ */}
       <section id="formations" className="py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-6">
           
-          {/* En-tête avec une touche humaine */}
+        
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-5 py-2 rounded-full text-sm font-semibold mb-4">
-              <span className="text-lg">🎯</span> Choisissez votre voie
-            </div>
+            
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
               Des formations qui vous <span className="text-green-600">ressemblent</span>
             </h2>
@@ -248,10 +233,6 @@ export default function Home() {
                         <span className="text-green-500 text-sm">✨</span>
                         <span className="text-xs text-gray-400">+ de 200 étudiants formés</span>
                       </div>
-                      <div className="flex items-center gap-1 text-green-600 font-medium text-sm group-hover:gap-2 transition-all">
-                        <span>Découvrir</span>
-                        <span className="group-hover:translate-x-1 transition">→</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -263,11 +244,8 @@ export default function Home() {
           <div className="mt-16 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 text-center border border-green-100">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-3xl">🎓</span>
-                </div>
                 <div className="text-left">
-                  <h4 className="font-bold text-gray-800">Vous hésitez sur votre orientation ?</h4>
+                  <h4 className="font-bold text-gray-800">Dans le cas où vous auriez besoin d'une orientation</h4>
                   <p className="text-gray-500 text-sm">Nos conseillers pédagogiques sont là pour vous guider</p>
                 </div>
               </div>
@@ -343,7 +321,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold mb-6">🏛️ Campus moderne</span>
+              <span className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold mb-6">Campus moderne</span>
               <h2 className="text-4xl md:text-5xl font-bold mb-6">Un cadre d'étude exceptionnel</h2>
               <p className="text-blue-200 text-lg leading-relaxed mb-8">Notre campus dispose d'infrastructures modernes pour offrir aux étudiants les meilleures conditions d'apprentissage.</p>
               <div className="grid grid-cols-2 gap-6 mb-8">
@@ -417,8 +395,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-3xl p-8 text-white text-center">
-              <div className="text-5xl mb-4">📬</div>
+            <div className="bg-gradient-to-r from-green-500 to-green-400 rounded-3xl p-8 text-white text-center">
               <h3 className="text-2xl font-bold mb-2">Ne manquez aucune actualité</h3>
               <p className="text-green-100 mb-6">Inscrivez-vous à notre newsletter</p>
               <div className="flex flex-col sm:flex-row gap-3">

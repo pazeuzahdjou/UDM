@@ -1,168 +1,64 @@
 import express from 'express';
-import Payment from '../models/Payment.js';
-import Admission from '../models/Admission.js';
-import { confirmerPaiementAdmin, genererRecuPDF, verifierPaiementExterne } from '../services/paymentService.js';
-import { protect, isAdmin } from '../middlewares/authMiddleware.js';
-import { sendEmail } from '../services/mailService.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { query } from '../config/database.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const router = express.Router();
 
-// ============ POUR L'ÉTUDIANT ============
-
-// Initier un paiement (étudiant)
-router.post('/initiate', protect, async (req, res) => {
+// Initier un paiement Airtel (simulation)
+router.post('/airtel/initiate', async (req, res) => {
   try {
-    const { candidatureId, amount, method, phone } = req.body;
+    const { candidatureId, amount, phone, reference } = req.body;
+    console.log('💰 Paiement Airtel simulé:', { candidatureId, amount, phone, reference });
     
-    const candidature = await Admission.findById(candidatureId);
-    if (!candidature) return res.status(404).json({ message: 'Candidature non trouvée' });
-    if (candidature.email !== req.user.email) return res.status(403).json({ message: 'Non autorisé' });
-    
-    // Vérifier que la candidature est validée
-    if (candidature.status !== 'valide') {
-      return res.status(400).json({ message: 'Cette candidature n\'est pas encore validée' });
-    }
-    
-    // Créer l'enregistrement de paiement
-    const payment = new Payment({
-      candidatureId,
-      reference: `PAY-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-      amount,
-      method,
-      phone,
-      status: 'en_attente'
-    });
-    
-    await payment.save();
+    const transactionId = `TXN-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     
     res.json({
       success: true,
-      paymentId: payment._id,
-      reference: payment.reference,
-      message: 'Paiement initié. En attente de confirmation administrative.'
+      transactionId,
+      message: 'Paiement initié avec succès'
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erreur serveur' });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// Vérifier le statut d'un paiement (étudiant)
-router.get('/status/:paymentId', protect, async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.paymentId).populate('candidatureId');
-    if (!payment) return res.status(404).json({ message: 'Paiement non trouvé' });
-    if (payment.candidatureId.email !== req.user.email) return res.status(403).json({ message: 'Non autorisé' });
-    
-    res.json({
-      status: payment.status,
-      reference: payment.reference,
-      confirmedAt: payment.confirmedAt,
-      receiptUrl: payment.receiptUrl,
-      amount: payment.amount
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
+// Vérifier statut paiement Airtel
+router.get('/airtel/status/:transactionId', async (req, res) => {
+  res.json({ success: true, status: 'SUCCESS' });
 });
 
-// Télécharger le reçu (étudiant)
-router.get('/receipt/:paymentId', protect, async (req, res) => {
-  try {
-    const payment = await Payment.findById(req.params.paymentId).populate('candidatureId');
-    if (!payment) return res.status(404).json({ message: 'Paiement non trouvé' });
-    if (payment.candidatureId.email !== req.user.email) return res.status(403).json({ message: 'Non autorisé' });
-    if (payment.status !== 'confirme') return res.status(400).json({ message: 'Paiement non confirmé' });
-    
-    const filepath = path.join(__dirname, '../uploads/reçus', path.basename(payment.receiptUrl));
-    res.download(filepath);
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
+// Initier un paiement Moov
+router.post('/moov/initiate', async (req, res) => {
+  const transactionId = `MOOV-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  res.json({ success: true, transactionId });
 });
 
-// ============ POUR L'ADMINISTRATEUR ============
-
-// Lister tous les paiements (admin)
-router.get('/admin/list', protect, isAdmin, async (req, res) => {
-  try {
-    const { status, search } = req.query;
-    const filter = {};
-    if (status && status !== 'tous') filter.status = status;
-    if (search) filter.reference = { $regex: search, $options: 'i' };
-    
-    const payments = await Payment.find(filter)
-      .populate('candidatureId', 'nom prenom email filiere reference')
-      .sort({ initiatedAt: -1 });
-    
-    res.json({ success: true, payments });
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
+// Vérifier statut paiement Moov
+router.get('/moov/status/:transactionId', async (req, res) => {
+  res.json({ success: true, status: 'SUCCESS' });
 });
 
-// Statistiques des paiements (admin)
-router.get('/admin/stats', protect, isAdmin, async (req, res) => {
+// Confirmer un paiement
+router.post('/confirm', async (req, res) => {
   try {
-    const total = await Payment.countDocuments();
-    const en_attente = await Payment.countDocuments({ status: 'en_attente' });
-    const confirme = await Payment.countDocuments({ status: 'confirme' });
-    const echoue = await Payment.countDocuments({ status: 'echoue' });
+    const { candidatureId, reference, amount, method, phone } = req.body;
+    console.log('✅ Paiement confirmé:', { candidatureId, reference, amount, method, phone });
     
-    const montantTotalResult = await Payment.aggregate([
-      { $match: { status: 'confirme' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } }
-    ]);
-    
-    res.json({
-      total,
-      en_attente,
-      confirme,
-      echoue,
-      montantTotal: montantTotalResult[0]?.total || 0
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-});
-
-// Confirmer un paiement (admin)
-router.put('/admin/confirm/:paymentId', protect, isAdmin, async (req, res) => {
-  try {
-    const { adminNotes } = req.body;
-    const payment = await confirmerPaiementAdmin(req.params.paymentId, req.user._id, adminNotes);
-    res.json({ success: true, payment });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Rejeter un paiement (admin)
-router.put('/admin/reject/:paymentId', protect, isAdmin, async (req, res) => {
-  try {
-    const { reason } = req.body;
-    const payment = await Payment.findById(req.params.paymentId);
-    if (!payment) return res.status(404).json({ message: 'Paiement non trouvé' });
-    
-    payment.status = 'echoue';
-    payment.adminNotes = reason;
-    await payment.save();
-    
-    // Envoyer email à l'étudiant
-    const candidature = await Admission.findById(payment.candidatureId);
-    await sendEmail(
-      candidature.email,
-      '❌ Paiement non confirmé - Université de Moundou',
-      `<h1>Paiement non confirmé</h1><p>Votre paiement n'a pas pu être confirmé. Motif: ${reason}</p><p>Veuillez contacter l'administration.</p>`
+    // Mettre à jour le statut dans la base
+    await query(
+      `UPDATE admissions 
+       SET paymentstatus = 'paye', 
+           paymentreference = $1, 
+           paymentphone = $2, 
+           modepaiement = $3,
+           paymentdate = NOW()
+       WHERE id = $4 OR reference = $5`,
+      [reference, phone, method === 'airtel' ? 'Airtel Money' : 'Moov Money', candidatureId, reference]
     );
     
-    res.json({ success: true });
+    res.json({ success: true, message: 'Paiement confirmé', reference });
   } catch (error) {
-    res.status(500).json({ message: 'Erreur serveur' });
+    console.error('Erreur:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

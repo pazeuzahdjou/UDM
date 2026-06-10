@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import SectionTitle from "../components/SectionTitle";
 import udmaMd1 from "../assets/images/md1.png"
+
 export default function Recherche() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedProjet, setSelectedProjet] = useState(null);
@@ -38,7 +39,7 @@ export default function Recherche() {
     }
   ];
 
-  // Projets de recherche
+  // Projets de recherche (inchangé)
   const projetsRecherche = [
     {
       id: 1,
@@ -114,7 +115,7 @@ export default function Recherche() {
     }
   ];
 
-  // Publications récentes
+  // Publications récentes (inchangé)
   const publications = [
     {
       id: 1,
@@ -154,7 +155,7 @@ export default function Recherche() {
     }
   ];
 
-  // Événements scientifiques
+  // Événements scientifiques (inchangé)
   const evenements = [
     {
       id: 1,
@@ -179,54 +180,61 @@ export default function Recherche() {
     }
   ];
 
+  // ============ NOUVEAUX DOMAINES D'EXCELLENCE - DESIGN MODERNE ============
   const domaines = [
     {
       id: 1,
       titre: "Innovation Technologique",
       icon: "💡",
       description: "Développement de solutions digitales et systèmes intelligents pour répondre aux défis locaux.",
-      couleur: "from-blue-500 to-indigo-600",
-      stats: "12 projets actifs"
+      couleur: "from-blue-500 to-cyan-500",
+      stats: "12 projets actifs",
+      bg: "bg-gradient-to-br from-blue-50 to-cyan-50"
     },
     {
       id: 2,
       titre: "Partenariats Académiques",
       icon: "🤝",
       description: "Collaborations internationales pour renforcer la recherche et les échanges scientifiques.",
-      couleur: "from-green-500 to-teal-600",
-      stats: "10 partenaires"
+      couleur: "from-green-500 to-emerald-500",
+      stats: "10 partenaires",
+      bg: "bg-gradient-to-br from-green-50 to-emerald-50"
     },
     {
       id: 3,
       titre: "Recherche Environnementale",
       icon: "🌍",
-      description: "Études sur le climat, la prévision méteriologique,l'agriculture durable et la protection des ressources naturelles.",
-      couleur: "from-emerald-500 to-green-600",
-      stats: "8 projets"
+      description: "Études sur le climat, la prévision météorologique, l'agriculture durable et la protection des ressources naturelles.",
+      couleur: "from-emerald-500 to-teal-500",
+      stats: "8 projets",
+      bg: "bg-gradient-to-br from-emerald-50 to-teal-50"
     },
     {
       id: 4,
       titre: "Transformation Numérique",
       icon: "🖥️",
       description: "Modernisation des processus éducatifs et administratifs via les technologies digitales.",
-      couleur: "from-purple-500 to-pink-600",
-      stats: "5 plateformes"
+      couleur: "from-purple-500 to-pink-500",
+      stats: "5 plateformes",
+      bg: "bg-gradient-to-br from-purple-50 to-pink-50"
     },
     {
       id: 5,
       titre: "Sciences de la Santé",
       icon: "🏥",
       description: "Recherche médicale et développement de solutions de santé publique.",
-      couleur: "from-red-500 to-rose-600",
-      stats: "10 projets"
+      couleur: "from-red-500 to-rose-500",
+      stats: "10 projets",
+      bg: "bg-gradient-to-br from-red-50 to-rose-50"
     },
     {
       id: 6,
       titre: "Innovation Sociale",
       icon: "👥",
       description: "Projets communautaires pour l'inclusion et le développement social.",
-      couleur: "from-orange-500 to-amber-600",
-      stats: "6 projets"
+      couleur: "from-orange-500 to-amber-500",
+      stats: "6 projets",
+      bg: "bg-gradient-to-br from-orange-50 to-amber-50"
     }
   ];
 
@@ -274,7 +282,7 @@ export default function Recherche() {
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       
-      {/* SLIDER PRINCIPAL */}
+      {/* SLIDER PRINCIPAL (inchangé) */}
       <div className="relative h-screen max-h-[700px] overflow-hidden">
         <div className="relative w-full h-full">
           {slides.map((slide, index) => (
@@ -310,30 +318,12 @@ export default function Recherche() {
           ))}
         </div>
 
-        {/* Navigation Slider */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition"
-        >
-          ←
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition"
-        >
-          →
-        </button>
+        <button onClick={prevSlide} className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition">←</button>
+        <button onClick={nextSlide} className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition">→</button>
 
-        {/* Indicateurs */}
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
           {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentSlide ? "w-8 bg-white" : "bg-white/50"
-              }`}
-            />
+            <button key={index} onClick={() => setCurrentSlide(index)} className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentSlide ? "w-8 bg-white" : "bg-white/50"}`} />
           ))}
         </div>
       </div>
@@ -348,47 +338,63 @@ export default function Recherche() {
           </p>
         </div>
 
-        {/* STATISTIQUES ANIMÉES */}
+        {/* STATISTIQUES */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-20">
           {statistiques.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
-            >
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">
-                {item.icon}
-              </div>
-              <h3 className="text-3xl font-bold text-green-700 mb-2">
-                {item.valeur}
-              </h3>
+            <div key={index} className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group">
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
+              <h3 className="text-3xl font-bold text-green-700 mb-2">{item.valeur}</h3>
               <p className="font-semibold text-gray-800">{item.titre}</p>
               <p className="text-xs text-gray-400 mt-1">{item.description}</p>
             </div>
           ))}
         </div>
 
-        {/* DOMAINES DE RECHERCHE */}
+        {/* ============ NOUVEAUX DOMAINES D'EXCELLENCE (DESIGN MODERNE) ============ */}
         <div className="mb-24">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Nos Domaines d'Excellence
-          </h2>
+          <div className="text-center mb-12">
+            <span className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              🔬 Excellence scientifique
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+              Nos <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Domaines d'Excellence</span>
+            </h2>
+            <p className="text-gray-500 max-w-2xl mx-auto mt-3">
+              Des axes de recherche stratégiques pour répondre aux défis du Tchad et de l'Afrique
+            </p>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {domaines.map((item) => (
+            {domaines.map((item, index) => (
               <div
                 key={item.id}
-                className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer"
               >
-                <div className={`bg-gradient-to-r ${item.couleur} p-6 text-white relative overflow-hidden`}>
-                  <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full"></div>
-                  <div className="text-6xl mb-4 relative z-10">{item.icon}</div>
-                  <h3 className="text-2xl font-bold relative z-10">{item.titre}</h3>
-                  <p className="text-sm opacity-90 mt-2 relative z-10">{item.stats}</p>
-                </div>
+                {/* Bande colorée en haut */}
+                <div className={`h-1.5 w-full bg-gradient-to-r ${item.couleur}`}></div>
+                
                 <div className="p-6">
-                  <p className="text-gray-600 leading-relaxed">{item.description}</p>
-                  <button className="mt-4 text-green-600 font-semibold hover:text-green-700 transition flex items-center gap-2">
-                    En savoir plus →
-                  </button>
+                  {/* Icône avec animation */}
+                  <div className={`w-16 h-16 ${item.bg} rounded-2xl flex items-center justify-center text-3xl mb-5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                    <span>{item.icon}</span>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition">
+                    {item.titre}
+                  </h3>
+                  
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                    {item.description}
+                  </p>
+                  
+                  {/* Badge statistique */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    {item.stats}
+                  </div>
+                  
+                  {/* Ligne animée au hover */}
+                  <div className="mt-4 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500 rounded-full"></div>
                 </div>
               </div>
             ))}
@@ -409,11 +415,7 @@ export default function Recherche() {
                 onClick={() => openModal(projet)}
               >
                 <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={projet.image}
-                    alt={projet.titre}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                  <img src={projet.image} alt={projet.titre} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute top-3 right-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(projet.status)}`}>
                       {projet.status}
@@ -436,6 +438,43 @@ export default function Recherche() {
           </div>
         </div>
 
+        {/* PUBLICATIONS & ÉVÉNEMENTS */}
+        <div className="grid lg:grid-cols-2 gap-10 mb-24">
+          <div>
+            <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">📄 Publications Scientifiques</h2>
+            <div className="space-y-4">
+              {publications.map((pub) => (
+                <div key={pub.id} className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition">
+                  <h3 className="font-bold text-gray-800 mb-2">{pub.titre}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{pub.auteurs}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">{pub.revue} • {pub.annee}</span>
+                    <span className="text-sm text-green-600">📊 {pub.citations} citations</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-bold mb-8 flex items-center gap-2">📅 Événements Scientifiques</h2>
+            <div className="space-y-4">
+              {evenements.map((event) => (
+                <div key={event.id} className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-5 shadow-md">
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl">📌</div>
+                    <div>
+                      <h3 className="font-bold text-gray-800 mb-1">{event.titre}</h3>
+                      <p className="text-sm text-gray-600 mb-1">📅 {event.date}</p>
+                      <p className="text-sm text-gray-600">📍 {event.lieu}</p>
+                      <p className="text-xs text-gray-500 mt-2">🎯 {event.theme}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* PARTENAIRES */}
         <div className="mb-24">
@@ -443,15 +482,12 @@ export default function Recherche() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { nom: "Université de N'Djaména", logo: "🏛️" },
-              
               { nom: "AUF", logo: "🌍" },
-           
               { nom: "Banque Mondiale", logo: "🏦" },
               { nom: "UE", logo: "🇪🇺" },
-              
             ].map((part, idx) => (
-              <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition">
-                <div className="text-5xl mb-3">{part.logo}</div>
+              <div key={idx} className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-xl transition group">
+                <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">{part.logo}</div>
                 <p className="font-semibold text-gray-700">{part.nom}</p>
               </div>
             ))}
@@ -461,10 +497,7 @@ export default function Recherche() {
         {/* APPEL À ACTION */}
         <div className="bg-gradient-to-r from-green-800 to-green-600 rounded-3xl p-12 text-white text-center shadow-2xl">
           <div className="max-w-3xl mx-auto">
-           
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Rejoignez nos équipes de recherche
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Rejoignez nos équipes de recherche</h2>
             <p className="text-green-100 mb-8 text-lg">
               Vous êtes chercheur, doctorant ou partenaire ? Contribuez à l'avancement de la science.
             </p>
@@ -512,25 +545,15 @@ export default function Recherche() {
 
       <style jsx>{`
         @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fadeInUp {
-          animation: fadeInUp 1s ease-out;
-        }
+        .animate-fadeInUp { animation: fadeInUp 1s ease-out; }
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
