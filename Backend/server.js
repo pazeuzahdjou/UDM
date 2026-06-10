@@ -10,6 +10,7 @@ import admissionRoutes from './routes/admissionRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +36,8 @@ app.use('/api', admissionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/contact', contactRoutes);
+
 
 // ============ ROUTES PUBLIQUES ============
 app.get('/api/health', (req, res) => {
@@ -91,6 +94,24 @@ app.use((err, req, res, next) => {
     success: false, 
     message: err.message || 'Erreur interne du serveur' 
   });
+});
+
+// Route contact
+app.post('/api/contact', async (req, res) => {
+  const { nom, email, sujet, message } = req.body;
+  
+  if (!nom || !email || !message) {
+    return res.status(400).json({ success: false, message: "Champs obligatoires manquants" });
+  }
+  
+  try {
+    // Ici vous pouvez sauvegarder en base ou envoyer un email
+    console.log('📩 Nouveau message de contact:', { nom, email, sujet, message });
+    
+    res.json({ success: true, message: "Message envoyé avec succès !" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur lors de l'envoi" });
+  }
 });
 
 // ============ DÉMARRAGE DU SERVEUR ============
