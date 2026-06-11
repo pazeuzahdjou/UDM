@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import './config/database.js';
+import { query } from './config/database.js'; // ← IMPORTANT : importer query
 
 // Import routes
 import admissionRoutes from './routes/admissionRoutes.js';
@@ -38,7 +38,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/contact', contactRoutes);
 
-
 // ============ ROUTES PUBLIQUES ============
 app.get('/api/health', (req, res) => {
   res.json({
@@ -64,6 +63,34 @@ app.get('/', (req, res) => {
     }
   });
 });
+
+// Route contact
+app.post('/api/contact', async (req, res) => {
+  const { nom, email, sujet, message } = req.body;
+  
+  if (!nom || !email || !message) {
+    return res.status(400).json({ success: false, message: "Champs obligatoires manquants" });
+  }
+  
+  try {
+    console.log('📩 Nouveau message de contact:', { nom, email, sujet, message });
+    res.json({ success: true, message: "Message envoyé avec succès !" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Erreur lors de l'envoi" });
+  }
+});
+
+// ============ FONCTION KEEP-ALIVE ============
+const keepAlive = () => {
+  setInterval(async () => {
+    try {
+      await query('SELECT 1');
+      console.log('✅ Keep-alive: Base de données éveillée');
+    } catch (err) {
+      console.error('❌ Keep-alive échoué:', err.message);
+    }
+  }, 120000); // Toutes les 2 minutes
+};
 
 // ============ GESTION DES ERREURS ============
 app.use((req, res) => {
@@ -96,24 +123,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Route contact
-app.post('/api/contact', async (req, res) => {
-  const { nom, email, sujet, message } = req.body;
-  
-  if (!nom || !email || !message) {
-    return res.status(400).json({ success: false, message: "Champs obligatoires manquants" });
-  }
-  
-  try {
-    // Ici vous pouvez sauvegarder en base ou envoyer un email
-    console.log('📩 Nouveau message de contact:', { nom, email, sujet, message });
-    
-    res.json({ success: true, message: "Message envoyé avec succès !" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Erreur lors de l'envoi" });
-  }
-});
-
 // ============ DÉMARRAGE DU SERVEUR ============
 const PORT = process.env.PORT || 5000;
 
@@ -128,3 +137,6 @@ app.listen(PORT, () => {
   console.log('='.repeat(50));
   console.log('');
 });
+
+// Démarrer le keep-alive APRÈS le serveur
+keepAlive();

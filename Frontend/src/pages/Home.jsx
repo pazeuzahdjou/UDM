@@ -31,9 +31,10 @@ export default function Home() {
     { titre: "Biologie", icon: "🧬", description: "Biotechnologies, Biologie Végétale", color: "from-emerald-500 to-green-500", details: "Licence" },
     { titre: "Chimie", icon: "⚗️", description: "Chimie industrielle, pharmacie, matériaux", color: "from-teal-500 to-cyan-500", details: "Licence" },
     { titre: "Télécommunications", icon: "📡", description: "Réseaux, 5G, IoT, fibre optique", color: "from-indigo-500 to-purple-500", details: "Licence" },
-    { titre: "Géographie", icon: "⛰️", description: "Exploitation environnementale, climatologie, urbanisme", color: "from-green-500 to-orange-500", details: "Licence/Master" },
-    { titre: "Comptabilité & Finance", icon: "⛰️", description: "Moyen technique de la comptabilité et finace, ", color: "from-amber-500 to-orange-500", details: "Licence" },
-    { titre: "Economie Monaitaire et Banquaire", icon: "⛰️", description: "Etude de la monnaie électronique et de billets de banque", color: "from-amber-500 to-orange-500", details: "Licence" }
+    { titre: "Géographie", icon: "🌍", description: "Exploitation environnementale, climatologie, urbanisme", color: "from-emerald-500 to-teal-500", details: "Licence/Master" },
+    { titre: "Comptabilité & Finance", icon: "💰", description: "Moyens techniques de la comptabilité et finance", color: "from-amber-500 to-orange-500", details: "Licence" },
+    { titre: "Économie Monétaire et Bancaire", icon: "🏦", description: "Étude de la monnaie électronique et des billets de banque", color: "from-yellow-500 to-amber-500", details: "Licence" },
+    { titre: "Lettres Modernes", icon: "📖", description: "Étude des arts et des lettres", color: "from-rose-500 to-pink-500", details: "Licence" }
   ];
 
   const actualites = [
@@ -180,18 +181,18 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* SECTION FORMATIONS */}
       <section id="formations" className="py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-6">
           
-        
           <div className="text-center mb-16">
-            
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
               Des formations qui vous <span className="text-green-600">ressemblent</span>
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto text-lg">
               Que vous soyez passionné par les chiffres, les codes, la nature ou les hommes, 
-              vous trouverez votre place parmi nos 9 filières d'excellence.
+              vous trouverez votre place parmi nos nombreuses filières d'excellence.
             </p>
             <div className="flex justify-center gap-2 mt-6">
               <div className="w-12 h-1 bg-green-500 rounded-full"></div>
@@ -395,7 +396,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-to-r from-green-500 to-green-400 rounded-3xl p-8 text-white text-center">
+            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-3xl p-8 text-white text-center">
               <h3 className="text-2xl font-bold mb-2">Ne manquez aucune actualité</h3>
               <p className="text-green-100 mb-6">Inscrivez-vous à notre newsletter</p>
               <div className="flex flex-col sm:flex-row gap-3">

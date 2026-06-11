@@ -21,22 +21,21 @@ export default function PaymentModal({
   const isAndroid = /android/i.test(navigator.userAgent);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isMobile = isAndroid || isIOS;
-  const isDesktop = !isMobile;
 
   if (!isOpen) return null;
 
   // URLs de téléchargement
   const downloadUrls = {
     airtel: {
-      playStore: 'https://play.google.com/store/apps/details?id=com.airtel.africa',
-      appStore: 'https://apps.apple.com/fr/app/airtel-africa/id1234567890',
+      playStore: 'https://play.google.com/store/apps/details?id=com.airtel.africa.selfcare',
+      appStore: 'https://apps.apple.com/fr/app/airtel-money/id',
       webApp: 'https://myairtel.airtel.africa/',
       apk: 'https://www.apkmirror.com/apk/airtel/airtel-money/',
       official: 'https://www.airtel.africa/mobile-money/'
     },
     moov: {
       playStore: 'https://play.google.com/store/apps/details?id=com.moov.africa',
-      appStore: 'https://apps.apple.com/fr/app/moov-money/id1234567891',
+      appStore: 'https://apps.apple.com/fr/app/moov-money/id',
       webApp: 'https://moovmoney.moov.africa/',
       apk: 'https://www.apkmirror.com/apk/moov/moov-money/',
       official: 'https://www.moov.africa/moov-money/'
@@ -98,7 +97,6 @@ export default function PaymentModal({
       const userChoice = window.confirm(message);
       
       if (userChoice) {
-        // Ouvrir le Play Store/App Store dans un nouvel onglet
         window.open(downloadUrl, '_blank');
       }
     }, 3000);
